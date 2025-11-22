@@ -1,6 +1,6 @@
 # PRIZM NAS OS
 
-[![License](https://img.shields.io/github/license/PrizmCaptCore/prizm_nas)](LICENSE)
+[![License](https://img.shields.io/github/license/PrizmCaptCore/prizm_nas_os)](LICENSE)
 [![Arch Linux](https://img.shields.io/badge/based%20on-Arch%20Linux-1793D1?logo=arch-linux)](https://archlinux.org/)
 
 **미니멀리즘**
