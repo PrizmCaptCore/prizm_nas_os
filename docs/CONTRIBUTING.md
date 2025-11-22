@@ -16,42 +16,61 @@ Thank you for your interest in contributing to NAS OS! This document provides gu
 
 ### Requirements
 
+**Option 1: Native Arch Linux**
 - Arch Linux or Arch-based distribution
 - archiso package installed
 - At least 10GB free disk space
 - Basic knowledge of Bash scripting and Arch Linux
 
+**Option 2: WSL2/Ubuntu/Debian (Recommended)**
+- Docker installed and running
+- At least 10GB free disk space
+- Basic knowledge of Bash scripting
+
 ### Setup
 
+**For Arch Linux:**
 ```bash
 cd nas_project
-sudo pacman -S archiso qemu-desktop
+sudo pacman -S archiso qemu-full
+```
+
+**For WSL2/Ubuntu/Debian:**
+```bash
+cd nas_project
+# Install Docker if not already installed
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo usermod -aG docker $USER
+# Log out and back in for group changes to take effect
 ```
 
 ## Areas for Contribution
 
 ### High Priority
 
-- [ ] ZFS integration improvements
-- [ ] Web UI enhancements
-- [ ] Automated testing
-- [ ] Documentation improvements
+- [ ] Installation automation scripts (nas-setup, nas-install)
+- [ ] Automated testing (GitHub Actions workflows)
+- [ ] Documentation improvements (guides, examples)
 - [ ] Security hardening
+- [ ] Size optimization (reduce ISO size further)
 
 ### Medium Priority
 
-- [ ] Additional filesystem support
+- [ ] ZFS integration and testing
 - [ ] Backup solutions integration
-- [ ] Notification system
-- [ ] Multi-language support
-- [ ] ARM architecture support
+- [ ] Notification system (email alerts, webhooks)
+- [ ] Multi-language support for scripts
+- [ ] ARM architecture support (aarch64)
 
 ### Nice to Have
 
-- [ ] Custom themes
-- [ ] Plugin system
-- [ ] Mobile app
-- [ ] Cloud sync features
+- [ ] Web UI integration (Cockpit enhancements)
+- [ ] Plugin/extension system
+- [ ] Mobile monitoring app
+- [ ] Cloud backup integration
+- [ ] Advanced network features (VLANs, bonding)
 
 ## Coding Guidelines
 
@@ -107,31 +126,62 @@ check_requirements
 
 Always test your changes by building the ISO:
 
+**On Arch Linux:**
 ```bash
 sudo ./scripts/build.sh
 ```
 
+**On WSL2/Ubuntu/Debian:**
+```bash
+./scripts/build-wsl2.sh
+```
+
+The build process will:
+1. Use Docker container with Arch Linux
+2. Install archiso and dependencies
+3. Build ISO using official releng profile
+4. Output ISO to `output/` directory
+
 ### VM Testing
 
-Test the built ISO in a VM:
+Test the built ISO in QEMU:
 
 ```bash
-./scripts/test-vm.sh
+./scripts/test-qemu.sh
 ```
+
+This will:
+- Create a virtual disk if needed (20GB)
+- Boot the ISO in QEMU
+- Allow you to test installation and features
 
 ### Manual Testing Checklist
 
-- [ ] ISO builds successfully
+**Build & Boot:**
+- [ ] ISO builds successfully (no errors)
+- [ ] ISO size is reasonable (~1-1.5GB)
 - [ ] System boots in both BIOS and UEFI modes
-- [ ] Network connectivity works
-- [ ] All services start correctly
-- [ ] nas-setup script works
-- [ ] nas-status script works
+- [ ] Root login works (default: no password)
+
+**Core Functionality:**
+- [ ] Network connectivity works (dhcpcd)
+- [ ] SSH daemon starts correctly
+- [ ] Basic utilities work (nano, less, etc.)
+
+**Storage (if testing storage features):**
+- [ ] Btrfs/ext4/xfs formatting works
+- [ ] LVM/mdadm works
+- [ ] SMART monitoring works
+
+**Optional Features (if installed):**
 - [ ] Samba shares are accessible
 - [ ] NFS exports work
 - [ ] Docker containers can be created
-- [ ] Web interfaces are accessible
+- [ ] Web interfaces are accessible (Cockpit, etc.)
+
+**General:**
 - [ ] No regression in existing features
+- [ ] No unexpected errors in logs
 
 ## Submitting Changes
 
@@ -236,18 +286,26 @@ imagemagick
 
 ### Adding Services
 
-1. Add package to `packages.x86_64`
-2. Enable service in `airootfs/root/.automated_script.sh`
-3. Add configuration file to `airootfs/etc/`
+1. Add package to `iso/packages.x86_64`
+2. Create service configuration in `iso/airootfs/etc/`
+3. Test that service starts correctly after boot
 4. Update documentation
-5. Add firewall rules if needed
+5. Consider firewall implications (document if needed)
 
 ### Adding Scripts
 
-1. Create script in `airootfs/usr/local/bin/`
-2. Add to `profiledef.sh` file_permissions
-3. Ensure it's executable and well-documented
-4. Update README.md
+1. Create script in `iso/airootfs/usr/local/bin/`
+2. Add to `iso/profiledef.sh` file_permissions array
+3. Ensure it's executable (755) and well-documented
+4. Update README.md with usage examples
+
+Example entry in `profiledef.sh`:
+```bash
+file_permissions=(
+  ...
+  ["/usr/local/bin/your-script"]="0:0:755"
+)
+```
 
 ### Adding Documentation
 
@@ -301,12 +359,16 @@ A clear description of the bug
 What should happen
 
 **Environment**
-- NAS OS version:
-- Hardware:
-- Additional context:
+- PRIZM NAS OS version/date:
+- ISO size:
+- Build method (Arch native / WSL2 Docker):
+- Hardware (if applicable):
+- QEMU/VM or bare metal:
 
 **Logs**
-Paste relevant logs here
+```
+Paste relevant logs here (dmesg, journalctl, build logs, etc.)
+```
 ```
 
 ### Feature Requests
