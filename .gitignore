@@ -1,0 +1,221 @@
+# ===========================
+# Build outputs
+# ===========================
+output/
+*.iso
+*.img
+
+# Work directories
+work/
+tmp/
+temp/
+
+# Package caches
+*.pkg.tar.*
+*.tar.gz
+*.tar.xz
+*.tar.zst
+
+# Logs
+*.log
+logs/
+
+# ===========================
+# Development Environments
+# ===========================
+
+# Hidden directories (catch-all, except .github)
+.*/
+!.github/
+!.gitignore
+
+# IDEs and Editors
+.vscode/
+.idea/
+.eclipse/
+.settings/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.buildpath
+.externalToolBuilders/
+.cproject
+.metadata
+*.iml
+*.ipr
+*.iws
+.netbeans/
+nbproject/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ===========================
+# Languages & Frameworks
+# ===========================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# Ruby
+*.gem
+.bundle/
+vendor/bundle/
+
+# Go
+*.exe
+*.dll
+*.dylib
+*.test
+
+# Rust
+target/
+Cargo.lock
+
+# ===========================
+# OS & Editor Files
+# ===========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.fseventsd
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+.*.sw?
+Session.vim
+
+# Emacs
+\#*\#
+.\#*
+*~
+.emacs.desktop
+.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# ===========================
+# Security & Config
+# ===========================
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+id_rsa
+id_dsa
+*.ppk
+
+# ===========================
+# Temporary & Backup Files
+# ===========================
+
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.cache
+
+# ===========================
+# Misc
+# ===========================
+
+# Archives
+*.zip
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+*.tar
+
+# Databases (if accidentally placed)
+*.sqlite
+*.sqlite3
+*.db
+*.mdb
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Documentation builds
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# User-specific files
+TODO.txt
+NOTES.txt
+*.local

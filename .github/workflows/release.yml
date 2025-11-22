@@ -1,0 +1,57 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release Notes
+        run: |
+          cat > release_notes.md << 'EOF'
+          # PRIZM NAS OS ${{ steps.version.outputs.VERSION }}
+
+          ## 다운로드
+
+          ISO 이미지를 빌드하려면:
+
+          \`\`\`bash
+          git clone https://github.com/PrizmCaptCore/prizm_nas.git
+          cd prizm_nas
+          sudo ./scripts/build.sh
+          \`\`\`
+
+          ## 변경사항
+
+          전체 변경 내역은 [CHANGELOG.md](https://github.com/PrizmCaptCore/prizm_nas/blob/main/CHANGELOG.md)를 참조하세요.
+
+          ## 설치 방법
+
+          상세한 설치 가이드는 [docs/INSTALLATION.md](https://github.com/PrizmCaptCore/prizm_nas/blob/main/docs/INSTALLATION.md)를 참조하세요.
+
+          ## 주의사항
+
+          - 이 버전은 x86_64 아키텍처만 지원합니다
+          - 최소 2GB RAM이 필요합니다
+          - 프로덕션 환경에서 사용하기 전에 충분히 테스트하세요
+          EOF
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, 'rc') || contains(steps.version.outputs.VERSION, 'beta') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

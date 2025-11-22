@@ -1,0 +1,56 @@
+# ============================================
+# ESSENTIAL PACKAGES (DO NOT REMOVE)
+# ============================================
+
+# Core system
+base
+linux
+linux-firmware
+mkinitcpio
+mkinitcpio-archiso
+
+# Boot loaders
+grub
+syslinux
+efibootmgr
+dosfstools
+
+# Network
+dhcpcd
+openssh
+
+# File systems (main)
+btrfs-progs
+e2fsprogs
+xfsprogs
+
+# Disk management
+mdadm
+lvm2
+parted
+gptfdisk
+
+# NAS essentials
+rsync
+smartmontools
+ethtool
+hdparm
+nvme-cli
+
+# CPU microcode
+amd-ucode
+intel-ucode
+
+# Basic utilities
+nano
+sudo
+less
+arch-install-scripts
+squashfs-tools
+diffutils
+mtools
+terminus-font
+
+# Locale and console
+kbd
+util-linux
