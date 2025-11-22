@@ -5,9 +5,9 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/PrizmCaptCore/prizm_nas)](https://github.com/PrizmCaptCore/prizm_nas/pulls)
 [![License](https://img.shields.io/github/license/PrizmCaptCore/prizm_nas)](LICENSE)
 
-Arch Linux 기반 NAS 운영체제 - **CLI 중심, 최소주의, 확장 가능**
+** 미니멀리즘 **
 
-> 💡 **철학**: NAS의 본질은 파일 공유입니다. 웹 UI는 선택사항일 뿐입니다.
+> 💡 **철학**: 최소한의 기능만을 유지하고자 합니다.
 
 ## 특징
 
@@ -33,7 +33,7 @@ Arch Linux 기반 NAS 운영체제 - **CLI 중심, 최소주의, 확장 가능**
 
 ## 설계 철학
 
-**CLI First, GUI Optional** - SSH로 관리하고, 필요시 웹 UI 추가
+**사용자 편의 위주** 
 
 **기본 시스템** (~800MB):
 ```bash
@@ -41,7 +41,7 @@ Arch Linux 기반 NAS 운영체제 - **CLI 중심, 최소주의, 확장 가능**
 ```
 - 포함: 파일 공유, 스토리지, 네트워킹, CLI 도구
 - 제외: 웹 UI, Docker, 모니터링 (선택 설치)
-- **개인 PC 지원**: WiFi/GPU 펌웨어 포함
+- **개인 PC 기준**: WiFi/GPU 펌웨어 포함
 
 **관리 방식**:
 ```bash
