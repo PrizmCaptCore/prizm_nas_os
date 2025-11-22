@@ -86,8 +86,8 @@
 
 ```bash
 # 저장소 포크 및 클론
-git clone https://github.com/YOUR_USERNAME/prizm_nas.git
-cd prizm_nas
+git clone https://github.com/YOUR_USERNAME/prizm_nas_os.git
+cd prizm_nas_os
 
 # 새 브랜치 생성
 git checkout -b feature/your-feature-name
@@ -131,7 +131,7 @@ git push origin feature/your-feature-name
 
 ### 도움 요청
 - 막히면 Issue에서 질문하세요
-- [Discussions](https://github.com/PrizmCaptCore/prizm_nas/discussions)에서 토론
+- [Discussions](https://github.com/PrizmCaptCore/prizm_nas_os/discussions)에서 토론
 - 커뮤니티가 도와드립니다!
 
 ## 🏆 기여자 인정
@@ -150,4 +150,4 @@ git push origin feature/your-feature-name
 
 ---
 
-**궁금한 점이 있으신가요?** [Q&A 이슈](https://github.com/PrizmCaptCore/prizm_nas/issues/new?template=question.md)를 열어주세요!
+**궁금한 점이 있으신가요?** [Q&A 이슈](https://github.com/PrizmCaptCore/prizm_nas_os/issues/new?template=question.md)를 열어주세요!

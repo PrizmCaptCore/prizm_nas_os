@@ -18,7 +18,7 @@ PRIZM NAS OS의 보안 취약점을 발견하셨다면, 책임감 있게 공개�
 **공개 이슈로 보고하지 마세요.** 대신:
 
 1. **GitHub Security Advisory**를 사용하세요:
-   - [여기서 보안 권고 생성](https://github.com/PrizmCaptCore/prizm_nas/security/advisories/new)
+   - [여기서 보안 권고 생성](https://github.com/PrizmCaptCore/prizm_nas_os/security/advisories/new)
 
 2. 또는 이메일로 연락:
    - 보안 관련 이메일 주소 (추가 예정)
@@ -47,7 +47,7 @@ PRIZM NAS OS의 보안 취약점을 발견하셨다면, 책임감 있게 공개�
 
 보안 업데이트는:
 - 최대한 빨리 릴리스됩니다
-- [Security Advisories](https://github.com/PrizmCaptCore/prizm_nas/security/advisories)에 문서화됩니다
+- [Security Advisories](https://github.com/PrizmCaptCore/prizm_nas_os/security/advisories)에 문서화됩니다
 - CHANGELOG.md에 기록됩니다
 - GitHub Release를 통해 알립니다
 

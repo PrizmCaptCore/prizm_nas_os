@@ -40,8 +40,8 @@ PRIZM NAS OS에 기여해 주신 모든 분들께 감사드립니다! 🎉
 
 1. **코드 기여**: [CONTRIBUTING.md](docs/CONTRIBUTING.md) 참조
 2. **문서 개선**: 오타 수정, 예제 추가, 번역 등
-3. **버그 리포트**: [Issue 생성](https://github.com/PrizmCaptCore/prizm_nas/issues/new)
-4. **기능 제안**: [Feature Request](https://github.com/PrizmCaptCore/prizm_nas/issues/new?template=feature_request.md)
+3. **버그 리포트**: [Issue 생성](https://github.com/PrizmCaptCore/prizm_nas_os/issues/new)
+4. **기능 제안**: [Feature Request](https://github.com/PrizmCaptCore/prizm_nas_os/issues/new?template=feature_request.md)
 5. **테스트**: 새 버전 테스트 및 피드백
 6. **홍보**: 프로젝트 공유 및 소개
 
@@ -65,8 +65,8 @@ PRIZM NAS OS에 기여해 주신 모든 분들께 감사드립니다! 🎉
 
 ## 통계
 
-![GitHub Contributors](https://img.shields.io/github/contributors/PrizmCaptCore/prizm_nas)
-![GitHub Commit Activity](https://img.shields.io/github/commit-activity/m/PrizmCaptCore/prizm_nas)
+![GitHub Contributors](https://img.shields.io/github/contributors/PrizmCaptCore/prizm_nas_os)
+![GitHub Commit Activity](https://img.shields.io/github/commit-activity/m/PrizmCaptCore/prizm_nas_os)
 
 ---
 

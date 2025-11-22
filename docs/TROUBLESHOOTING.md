@@ -174,7 +174,7 @@ dmesg | grep firmware
    dmesg > dmesg.log
    ```
 
-2. **GitHub Issue 생성**: https://github.com/PrizmCaptCore/prizm_nas/issues
+2. **GitHub Issue 생성**: https://github.com/PrizmCaptCore/prizm_nas_os/issues
    - 에러 메시지 전체
    - 하드웨어 정보 (CPU, RAM, Storage)
    - 부팅 로그
