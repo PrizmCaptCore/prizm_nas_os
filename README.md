@@ -5,7 +5,7 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/PrizmCaptCore/prizm_nas)](https://github.com/PrizmCaptCore/prizm_nas/pulls)
 [![License](https://img.shields.io/github/license/PrizmCaptCore/prizm_nas)](LICENSE)
 
-** 미니멀리즘 **
+**미니멀리즘**
 
 > 💡 **철학**: 최소한의 기능만을 유지하고자 합니다.
 
