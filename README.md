@@ -3,99 +3,128 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Arch Linux](https://img.shields.io/badge/based%20on-Arch%20Linux-1793D1?logo=arch-linux)](https://archlinux.org/)
 
-**미니멀리즘**
+> 🌏 **한국어**: [README_ko.md](README_ko.md)
 
-> **설계 철학**: 최소한의 기능만을 유지하고자 합니다.
+**Minimalism-focused Arch Linux based NAS OS**
 
-## 특징
+> **Design Philosophy**: Maintain only the essentials while keeping it easily extensible.
 
-### TODO :
+## Features
+
+### TODO:
 **Storage & File Sharing**
-- SMB/NFS 파일 공유
-- Btrfs RAID, 압축, 스냅샷
-- ZFS 지원 (AUR)
-- LVM, mdadm, SMART 모니터링
+- SMB/NFS file sharing
+- Btrfs RAID, compression, snapshots
+- ZFS support (AUR)
+- LVM, mdadm, SMART monitoring
 
 **Network & Routing**
-- VPN 서버 (WireGuard, OpenVPN)
+- VPN server (WireGuard, OpenVPN)
 - VLAN, Bridge, Bonding
-- DHCP/DNS 서버 (dnsmasq)
-- 로드 밸런서 (HAProxy)
-- QoS, 트래픽 제어
-- 고급 방화벽 (nftables, iptables, UFW)
+- DHCP/DNS server (dnsmasq)
+- Load balancer (HAProxy)
+- QoS, traffic control
+- Advanced firewall (nftables, iptables, UFW)
 
-**확장 가능**
-- Docker (선택 설치)
-- Cockpit 웹 관리 UI (선택 설치)
-- Netdata 모니터링 (선택 설치)
-- 고급 네트워크 도구 (선택 설치)
+**Extensible**
+- Docker (optional install)
+- Cockpit web management UI (optional install)
+- Netdata monitoring (optional install)
+- Advanced networking tools (optional install)
 
-## 설계 철학
+## Design Philosophy
 
-**개인 사용자 편의 위주**: web GUI 개발 예정
-**개인 편의 위주**: CLI 부분을 최대한 수면 아래로 내릴 예정
-**개인 환경 위주**: WiFi/GPU 펌웨어 포함
+**User Convenience First**: Web GUI development planned
+**Personal Convenience**: Planning to hide CLI complexity beneath the surface
+**Personal Environment**: WiFi/GPU firmware included
 
-## 빠른 시작
+## Quick Start
 
-### 1. ISO 빌드
+### 1. Build ISO
 
-**Arch Linux에서:**
+**On Arch Linux:**
 ```bash
 sudo pacman -S archiso
 cd nas_project
 sudo ./scripts/build.sh
 ```
 
-### 2. 테스트 (QEMU)
+**On WSL2/Ubuntu/Debian:**
+```bash
+cd nas_project
+./scripts/build-wsl2.sh
+```
+
+### 2. Test (QEMU)
 
 ```bash
-# QEMU 설치
-sudo pacman -S qemu-full
+# Install QEMU
+sudo pacman -S qemu-full  # On Arch Linux
+# or
+sudo apt install qemu-system-x86  # On Debian/Ubuntu
 
-# ISO 테스트
+# Test ISO
 ./scripts/test-qemu.sh
 ```
 
-### 3. USB 설치 미디어 만들기
+### 3. Create USB Installation Media
 
 ```bash
-# USB 장치 확인
+# Check USB device
 lsblk
 
-# ISO를 USB에 쓰기 (주의: USB 내용이 삭제됩니다!)
-sudo dd if=output/nas-os-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
+# Write ISO to USB (WARNING: This will erase USB contents!)
+sudo dd if=output/archlinux-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
+## Documentation
 
-## 문서
+### Changelog
+- **[Changelog](docs/CHANGELOG.md)** - Release notes
 
-### 변경 이력
-- **[변경 이력](docs/CHANGELOG.md)** - 릴리스 노트
+### Contributing
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute to the project
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Another way to contribute
+- **[Contributors](docs/CONTRIBUTORS.md)** - List of contributors
 
-### 참여하기
-- **[기여 가이드](docs/CONTRIBUTING.md)** - 프로젝트에 기여하는 방법
-- **[트러블 슈팅](docs/TROUBLESHOOTING.md)** - 프로젝트에 참여해주시는 또 다른 방법
-- **[기여자 목록](docs/CONTRIBUTORS.md)** - 기여해주신 분들
+## System Requirements
 
-## 시스템 요구사항
+### Test System
+- **CPU**: x86_64 (64-bit) (4 Core, ARL)
+- **RAM**: 512MB minimum, 1GB recommended
+- **Storage**: System 2~3GB + data drives
+- **Network**: Ethernet (wired/wireless)
 
-### 테스트 시스템
-- **CPU**: x86_64 (64비트) (4 Core, ARL)
-- **RAM**: 512MB 최소, 1GB 권장
-- **저장공간**: 시스템 2~3GB + 데이터 드라이브
-- **네트워크**: 이더넷 (유선/무선)
+Full list: `iso/packages.x86_64` (35 packages)
 
-전체 목록: `iso/packages.x86_64` (35개 패키지)
+## Included Packages
 
-## 기여
+**System & Boot** (9): base, linux, linux-firmware, mkinitcpio, mkinitcpio-archiso, grub, syslinux, efibootmgr, dosfstools
 
-기여 환영합니다! [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) 참조
+**Network** (2): dhcpcd, openssh
 
-## 라이선스
+**Filesystems** (3): btrfs-progs, e2fsprogs, xfsprogs
 
-교육 및 개인 사용 목적으로 제공. 포함된 패키지는 각자의 라이선스를 따릅니다.
+**Disk Management** (4): mdadm, lvm2, parted, gptfdisk
+
+**NAS Essentials** (5): rsync, smartmontools, ethtool, hdparm, nvme-cli
+
+**CPU Microcode** (2): amd-ucode, intel-ucode
+
+**Basic Utilities** (10): nano, sudo, less, arch-install-scripts, squashfs-tools, diffutils, mtools, terminus-font, kbd, util-linux
+
+**Total: 35 packages** - Full list: [iso/packages.x86_64](iso/packages.x86_64)
+
+**Optional Install**: Samba, NFS, Docker, Cockpit, Netdata, WireGuard, etc.
+
+## Contributing
+
+Contributions are welcome! See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
+
+## License
+
+Provided for educational and personal use. Included packages are subject to their respective licenses.
 
 ---
 
-**주의**: 커스텀 운영체제입니다. 사용 전 중요 데이터를 백업하세요.
+**Warning**: This is a custom operating system. Please backup important data before use.
