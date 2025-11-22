@@ -1,9 +1,7 @@
 # PRIZM NAS OS
 
-[![GitHub Stars](https://img.shields.io/github/stars/PrizmCaptCore/prizm_nas?style=social)](https://github.com/PrizmCaptCore/prizm_nas/stargazers)
-[![GitHub Issues](https://img.shields.io/github/issues/PrizmCaptCore/prizm_nas)](https://github.com/PrizmCaptCore/prizm_nas/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/PrizmCaptCore/prizm_nas)](https://github.com/PrizmCaptCore/prizm_nas/pulls)
 [![License](https://img.shields.io/github/license/PrizmCaptCore/prizm_nas)](LICENSE)
+[![Arch Linux](https://img.shields.io/badge/based%20on-Arch%20Linux-1793D1?logo=arch-linux)](https://archlinux.org/)
 
 **미니멀리즘**
 
