@@ -87,15 +87,8 @@ sudo dd if=output/archlinux-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 
 ## Documentation
 
-### Changelog
-- **[Changelog](docs/CHANGELOG.md)** - Release notes
-
-### Contributing
-- **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute to the project
-- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Another way to contribute
-- **[Contributors](docs/CONTRIBUTORS.md)** - List of contributors
-
-### Korean Documentation
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Package Removal Guide](docs/REMOVE_FOR_LIGHT.md)** - Optimize ISO size
 - **[Korean Docs Index](docs/README_KOREAN.md)** - 한국어 문서 목록
 
 ## System Requirements
@@ -129,10 +122,6 @@ Full list: `iso/packages.x86_64` (35 packages)
 **Total: 37 packages** - Full list: [iso/packages.x86_64](iso/packages.x86_64)
 
 **Optional Install**: Samba, NFS, Docker, Cockpit, Netdata, WireGuard, etc.
-
-## Contributing
-
-Contributions are welcome! See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
 
 ## Security
 
