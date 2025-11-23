@@ -1,12 +1,5 @@
 #!/bin/bash
-# Test PRIZM NAS OS in QEMU
-
 set -e
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -17,64 +10,33 @@ DISK_IMG="$OUTPUT_DIR/test-disk.img"
 ISO_FILE=$(ls -t "$OUTPUT_DIR"/*.iso 2>/dev/null | head -1)
 
 if [ -z "$ISO_FILE" ]; then
-    echo -e "${RED}Error: No ISO file found in $OUTPUT_DIR${NC}"
-    echo "Build first with: sudo ./scripts/build.sh"
+    echo "Error: No ISO found in $OUTPUT_DIR" >&2
+    echo "Build first with: sudo ./scripts/build.sh" >&2
     exit 1
 fi
 
-echo -e "${GREEN}================================${NC}"
-echo -e "${GREEN}   PRIZM NAS OS - QEMU Test${NC}"
-echo -e "${GREEN}================================${NC}"
-echo ""
-echo "ISO: $ISO_FILE"
-echo "Size: $(ls -lh "$ISO_FILE" | awk '{print $5}')"
-echo ""
-
-# Create virtual disk if not exists
-if [ ! -f "$DISK_IMG" ]; then
-    echo -e "${YELLOW}Creating virtual disk (20GB)...${NC}"
-    qemu-img create -f qcow2 "$DISK_IMG" 20G
-    echo -e "${GREEN}✓ Virtual disk created${NC}"
-else
-    echo "Using existing virtual disk: $DISK_IMG"
-fi
-echo ""
-
-# Check if QEMU is installed
+# Check QEMU
 if ! command -v qemu-system-x86_64 &> /dev/null; then
-    echo -e "${YELLOW}QEMU not found.${NC}"
-    echo ""
-    echo "Install with:"
-    echo "  Arch Linux: sudo pacman -S qemu-full"
-    echo "  Ubuntu/Debian: sudo apt install qemu-system-x86"
-    echo ""
+    echo "Error: QEMU not found" >&2
+    echo "" >&2
+    echo "Install with:" >&2
+    echo "  Arch: sudo pacman -S qemu-full" >&2
+    echo "  Ubuntu: sudo apt install qemu-system-x86" >&2
     exit 1
 fi
 
-# Check for KVM support
+# Create virtual disk
+if [ ! -f "$DISK_IMG" ]; then
+    qemu-img create -f qcow2 "$DISK_IMG" 20G > /dev/null
+fi
+
+# Check KVM
 KVM_OPTS=""
 if [ -e /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
-    echo -e "${GREEN}✓ KVM acceleration available${NC}"
     KVM_OPTS="-enable-kvm"
-else
-    echo -e "${YELLOW}! KVM not available, using software emulation (slower)${NC}"
 fi
 
-echo ""
-echo -e "${GREEN}Starting QEMU...${NC}"
-echo ""
-echo "Controls:"
-echo "  Ctrl+Alt+G - Release mouse"
-echo "  Ctrl+Alt+F - Toggle fullscreen"
-echo "  Ctrl+C - Stop VM"
-echo ""
-
 # Run QEMU
-# -m 2048: 2GB RAM
-# -smp 2: 2 CPU cores
-# -boot d: Boot from CD-ROM
-# -hda: Virtual hard disk for installation
-# -serial stdio: Show serial console in terminal
 qemu-system-x86_64 \
   -boot d \
   -cdrom "$ISO_FILE" \
