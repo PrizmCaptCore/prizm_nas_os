@@ -1,9 +1,17 @@
 # PRIZM NAS OS
 
+<div align="center">
+
+### 🌍 Language / 언어
+
+**[🇰🇷 한국어](README_ko.md)** | **🇬🇧 English** (Current)
+
+---
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Arch Linux](https://img.shields.io/badge/based%20on-Arch%20Linux-1793D1?logo=arch-linux)](https://archlinux.org/)
 
-> 🌏 **한국어**: [README_ko.md](README_ko.md)
+</div>
 
 **Minimalism-focused Arch Linux based NAS OS**
 
@@ -87,6 +95,9 @@ sudo dd if=output/archlinux-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Another way to contribute
 - **[Contributors](docs/CONTRIBUTORS.md)** - List of contributors
 
+### Korean Documentation
+- **[Korean Docs Index](docs/README_KOREAN.md)** - 한국어 문서 목록
+
 ## System Requirements
 
 ### Test System
@@ -128,9 +139,3 @@ Provided for educational and personal use. Included packages are subject to thei
 ---
 
 **Warning**: This is a custom operating system. Please backup important data before use.
-
-## 🌏 Korean Documentation
-
-Korean documentation is available separately. See [docs/README_KOREAN.md](docs/README_KOREAN.md) for the list of available Korean documents.
-
-**한국어 문서**: [docs/README_KOREAN.md](docs/README_KOREAN.md)에서 한국어 문서 목록을 확인하세요.

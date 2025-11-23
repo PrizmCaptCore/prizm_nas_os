@@ -1,24 +1,32 @@
 # PRIZM NAS OS
 
+<div align="center">
+
+### 🌍 Language / 언어
+
+**🇰🇷 한국어** (현재) | **[🇬🇧 English](README.md)**
+
+---
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Arch Linux](https://img.shields.io/badge/based%20on-Arch%20Linux-1793D1?logo=arch-linux)](https://archlinux.org/)
 
-> 🌏 **English**: [README.md](README.md)
+</div>
 
-**미니멀리즘**
+**미니멀리즘 중심의 Arch Linux 기반 NAS OS**
 
-> **설계 철학**: 최소한의 기능만을 유지하고자 합니다.
+> **디자인 철학**: 필수 요소만 유지하면서도 쉽게 확장 가능하도록
 
-## 특징
+## 기능
 
-### TODO :
-**Storage & File Sharing**
+### TODO:
+**스토리지 & 파일 공유**
 - SMB/NFS 파일 공유
 - Btrfs RAID, 압축, 스냅샷
 - ZFS 지원 (AUR)
 - LVM, mdadm, SMART 모니터링
 
-**Network & Routing**
+**네트워크 & 라우팅**
 - VPN 서버 (WireGuard, OpenVPN)
 - VLAN, Bridge, Bonding
 - DHCP/DNS 서버 (dnsmasq)
@@ -30,13 +38,13 @@
 - Docker (선택 설치)
 - Cockpit 웹 관리 UI (선택 설치)
 - Netdata 모니터링 (선택 설치)
-- 고급 네트워크 도구 (선택 설치)
+- 고급 네트워킹 도구 (선택 설치)
 
-## 설계 철학
+## 디자인 철학
 
-**개인 사용자 편의 위주**: web GUI 개발 예정
-**개인 편의 위주**: CLI 부분을 최대한 수면 아래로 내릴 예정
-**개인 환경 위주**: WiFi/GPU 펌웨어 포함
+**사용자 편의성 우선**: 웹 GUI 개발 계획
+**개인 편의성**: CLI 복잡성을 표면 아래에 숨길 계획
+**개인 환경**: WiFi/GPU 펌웨어 포함
 
 ## 빠른 시작
 
@@ -49,55 +57,85 @@ cd nas_project
 sudo ./scripts/build.sh
 ```
 
+**WSL2/Ubuntu/Debian에서:**
+```bash
+cd nas_project
+./scripts/build-wsl2.sh
+```
+
 ### 2. 테스트 (QEMU)
 
 ```bash
 # QEMU 설치
-sudo pacman -S qemu-full
+sudo pacman -S qemu-full  # Arch Linux
+# 또는
+sudo apt install qemu-system-x86  # Debian/Ubuntu
 
 # ISO 테스트
 ./scripts/test-qemu.sh
 ```
 
-### 3. USB 설치 미디어 만들기
+### 3. USB 설치 미디어 생성
 
 ```bash
 # USB 장치 확인
 lsblk
 
-# ISO를 USB에 쓰기 (주의: USB 내용이 삭제됩니다!)
-sudo dd if=output/nas-os-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
+# USB에 ISO 쓰기 (경고: USB 내용이 삭제됩니다!)
+sudo dd if=output/archlinux-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
-
 
 ## 문서
 
-### 변경 이력
-- **[변경 이력](docs/CHANGELOG.md)** - 릴리스 노트
+### 변경 로그
+- **[Changelog](docs/CHANGELOG.md)** - 릴리스 노트
 
-### 참여하기
-- **[기여 가이드](docs/CONTRIBUTING.md)** - 프로젝트에 기여하는 방법
-- **[트러블 슈팅](docs/TROUBLESHOOTING.md)** - 프로젝트에 참여해주시는 또 다른 방법
-- **[기여자 목록](docs/CONTRIBUTORS.md)** - 기여해주신 분들
+### 기여하기
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - 프로젝트 기여 방법
+- **[Troubleshooting](docs/TROUBLESHOOTING_ko.md)** - 문제 해결 가이드 (한국어)
+- **[Contributors](docs/CONTRIBUTORS.md)** - 기여자 목록
+
+### 한국어 문서
+- **[한국어 문서 목록](docs/README_KOREAN.md)** - 사용 가능한 한국어 문서
 
 ## 시스템 요구사항
 
 ### 테스트 시스템
-- **CPU**: x86_64 (64비트) (4 Core, ARL)
-- **RAM**: 512MB 최소, 1GB 권장
-- **저장공간**: 시스템 2~3GB + 데이터 드라이브
+- **CPU**: x86_64 (64-bit) (4 Core, ARL)
+- **RAM**: 최소 512MB, 권장 1GB
+- **스토리지**: 시스템 2~3GB + 데이터 드라이브
 - **네트워크**: 이더넷 (유선/무선)
 
 전체 목록: `iso/packages.x86_64` (35개 패키지)
 
-## 기여
+## 포함된 패키지
 
-기여 환영합니다! [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) 참조
+**시스템 & 부트** (9개): base, linux, linux-firmware, mkinitcpio, mkinitcpio-archiso, grub, syslinux, efibootmgr, dosfstools
+
+**네트워크** (2개): dhcpcd, openssh
+
+**파일시스템** (3개): btrfs-progs, e2fsprogs, xfsprogs
+
+**디스크 관리** (4개): mdadm, lvm2, parted, gptfdisk
+
+**NAS 필수** (5개): rsync, smartmontools, ethtool, hdparm, nvme-cli
+
+**CPU 마이크로코드** (2개): amd-ucode, intel-ucode
+
+**기본 유틸리티** (10개): nano, sudo, less, arch-install-scripts, squashfs-tools, diffutils, mtools, terminus-font, kbd, util-linux
+
+**총: 35개 패키지** - 전체 목록: [iso/packages.x86_64](iso/packages.x86_64)
+
+**선택 설치**: Samba, NFS, Docker, Cockpit, Netdata, WireGuard 등
+
+## 기여하기
+
+기여를 환영합니다! [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) 참조
 
 ## 라이선스
 
-교육 및 개인 사용 목적으로 제공. 포함된 패키지는 각자의 라이선스를 따릅니다.
+교육 및 개인 사용 목적으로 제공됩니다. 포함된 패키지는 각각의 라이선스를 따릅니다.
 
 ---
 
-**주의**: 커스텀 운영체제입니다. 사용 전 중요 데이터를 백업하세요.
+**경고**: 이것은 커스텀 운영체제입니다. 사용 전 중요한 데이터를 백업하세요.
