@@ -106,7 +106,7 @@ sudo dd if=output/archlinux-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 - **스토리지**: 시스템 2~3GB + 데이터 드라이브
 - **네트워크**: 이더넷 (유선/무선)
 
-전체 목록: `iso/packages.x86_64` (35개 패키지)
+전체 목록: `iso/packages.x86_64` (37개 패키지)
 
 ## 포함된 패키지
 
@@ -122,15 +122,23 @@ sudo dd if=output/archlinux-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 
 **CPU 마이크로코드** (2개): amd-ucode, intel-ucode
 
-**기본 유틸리티** (10개): nano, sudo, less, arch-install-scripts, squashfs-tools, diffutils, mtools, terminus-font, kbd, util-linux
+**기본 유틸리티** (10개): nano, sudo, less, arch-install-scripts, squashfs-tools, diffutils, kbd, util-linux
 
-**총: 35개 패키지** - 전체 목록: [iso/packages.x86_64](iso/packages.x86_64)
+**웹 UI** (2개): python, python-flask
+
+**총: 37개 패키지** - 전체 목록: [iso/packages.x86_64](iso/packages.x86_64)
 
 **선택 설치**: Samba, NFS, Docker, Cockpit, Netdata, WireGuard 등
 
 ## 기여하기
 
 기여를 환영합니다! [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) 참조
+
+## 보안
+
+보안 취약점을 발견하셨나요? GitHub Issues 또는 이메일로 신고해주세요.
+
+**심각한 보안 취약점은 공개 이슈로 생성하지 마세요.** 관리자에게 직접 연락해주세요.
 
 ## 라이선스
 

@@ -122,15 +122,23 @@ Full list: `iso/packages.x86_64` (35 packages)
 
 **CPU Microcode** (2): amd-ucode, intel-ucode
 
-**Basic Utilities** (10): nano, sudo, less, arch-install-scripts, squashfs-tools, diffutils, mtools, terminus-font, kbd, util-linux
+**Basic Utilities** (10): nano, sudo, less, arch-install-scripts, squashfs-tools, diffutils, kbd, util-linux
 
-**Total: 35 packages** - Full list: [iso/packages.x86_64](iso/packages.x86_64)
+**Web UI** (2): python, python-flask
+
+**Total: 37 packages** - Full list: [iso/packages.x86_64](iso/packages.x86_64)
 
 **Optional Install**: Samba, NFS, Docker, Cockpit, Netdata, WireGuard, etc.
 
 ## Contributing
 
 Contributions are welcome! See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
+
+## Security
+
+Found a security vulnerability? Please report it via GitHub Issues or email.
+
+**Do NOT** create public issues for serious security vulnerabilities. Contact maintainers directly.
 
 ## License
 
