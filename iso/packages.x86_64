@@ -48,8 +48,6 @@ less
 arch-install-scripts
 squashfs-tools
 diffutils
-mtools
-terminus-font
 
 # Locale and console
 kbd
