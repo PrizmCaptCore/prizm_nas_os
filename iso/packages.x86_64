@@ -54,3 +54,6 @@ terminus-font
 # Locale and console
 kbd
 util-linux
+# Web UI
+python
+python-flask

@@ -1,0 +1,15 @@
+[Unit]
+Description=PRIZM NAS Web UI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/nas-webui/app.py
+Restart=always
+RestartSec=5
+User=root
+WorkingDirectory=/opt/nas-webui
+
+[Install]
+WantedBy=multi-user.target

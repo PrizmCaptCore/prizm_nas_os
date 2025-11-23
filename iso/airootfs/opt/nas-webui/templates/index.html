@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIZM NAS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { 
+            font-size: 2em; 
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .card h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #fff;
+            font-weight: 500;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .label { color: #888; }
+        .value { color: #e0e0e0; font-weight: 500; }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        .status.active {
+            background: #1a3d1a;
+            color: #4ade80;
+        }
+        .status.inactive {
+            background: #3d1a1a;
+            color: #f87171;
+        }
+        code {
+            background: #0a0a0a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #a0a0a0;
+        }
+        .disk-item {
+            padding: 10px;
+            background: #0f0f0f;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PRIZM NAS</h1>
+        <p class="subtitle">Network Attached Storage Management</p>
+
+        <div class="grid">
+            <!-- System Info -->
+            <div class="card">
+                <h2>System</h2>
+                <div id="system-info" class="loading">Loading...</div>
+            </div>
+
+            <!-- Services -->
+            <div class="card">
+                <h2>Services</h2>
+                <div id="services" class="loading">Loading...</div>
+            </div>
+
+            <!-- Network -->
+            <div class="card">
+                <h2>Network</h2>
+                <div id="network" class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Disks -->
+        <div class="card">
+            <h2>Storage</h2>
+            <div id="disks" class="loading">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`/api/${endpoint}`);
+                return await response.json();
+            } catch (error) {
+                return { error: error.message };
+            }
+        }
+
+        async function updateSystemInfo() {
+            const data = await fetchData('system');
+            const html = `
+                <div class="info-row">
+                    <span class="label">Hostname</span>
+                    <span class="value">${data.hostname}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Uptime</span>
+                    <span class="value">${data.uptime}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Kernel</span>
+                    <span class="value">${data.kernel}</span>
+                </div>
+            `;
+            document.getElementById('system-info').innerHTML = html;
+        }
+
+        async function updateServices() {
+            const data = await fetchData('services');
+            let html = '';
+            for (const [service, status] of Object.entries(data)) {
+                const statusClass = status === 'active' ? 'active' : 'inactive';
+                html += `
+                    <div class="info-row">
+                        <span class="label">${service}</span>
+                        <span class="status ${statusClass}">${status}</span>
+                    </div>
+                `;
+            }
+            document.getElementById('services').innerHTML = html;
+        }
+
+        async function updateNetwork() {
+            const data = await fetchData('network');
+            const interfaces = data.interfaces.filter(i => i.trim());
+            let html = '';
+            if (interfaces.length === 0) {
+                html = '<div class="info-row"><span class="label">No network interfaces</span></div>';
+            } else {
+                interfaces.forEach(iface => {
+                    html += `<div class="info-row"><code>${iface.trim()}</code></div>`;
+                });
+            }
+            document.getElementById('network').innerHTML = html;
+        }
+
+        async function updateDisks() {
+            const data = await fetchData('disks');
+            if (data.error) {
+                document.getElementById('disks').innerHTML = `<div class="info-row"><span class="label">${data.error}</span></div>`;
+                return;
+            }
+            
+            let html = '';
+            if (data.blockdevices) {
+                data.blockdevices.forEach(disk => {
+                    html += `
+                        <div class="disk-item">
+                            <div class="info-row">
+                                <span class="label">/dev/${disk.name}</span>
+                                <span class="value">${disk.size || 'N/A'}</span>
+                            </div>
+                            ${disk.mountpoint ? `<div style="margin-top:4px"><code>${disk.mountpoint}</code> ${disk.fstype || ''}</div>` : ''}
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('disks').innerHTML = html || '<div class="info-row"><span class="label">No disks found</span></div>';
+        }
+
+        // Update all data
+        async function updateAll() {
+            await Promise.all([
+                updateSystemInfo(),
+                updateServices(),
+                updateNetwork(),
+                updateDisks()
+            ]);
+        }
+
+        // Initial load
+        updateAll();
+
+        // Refresh every 5 seconds
+        setInterval(updateAll, 5000);
+    </script>
+</body>
+</html>

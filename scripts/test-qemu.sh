@@ -36,7 +36,18 @@ if [ -e /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
     KVM_OPTS="-enable-kvm"
 fi
 
-# Run QEMU
+echo "Starting QEMU VM..."
+echo ""
+echo "Network: VM will be accessible at 192.168.100.2"
+echo "Web UI:  http://192.168.100.2"
+echo "SSH:     ssh root@192.168.100.2"
+echo ""
+echo "Press Ctrl+C to stop VM"
+echo ""
+
+# Run QEMU with user networking and port forwarding
+# Host port 8080 -> VM port 80 (Web UI)
+# Host port 2222 -> VM port 22 (SSH)
 qemu-system-x86_64 \
   -boot d \
   -cdrom "$ISO_FILE" \
@@ -44,5 +55,6 @@ qemu-system-x86_64 \
   -m 2048 \
   -smp 2 \
   $KVM_OPTS \
+  -net nic -net user,hostfwd=tcp::8080-:80,hostfwd=tcp::2222-:22 \
   -serial stdio \
   -display gtk
