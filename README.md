@@ -128,3 +128,9 @@ Provided for educational and personal use. Included packages are subject to thei
 ---
 
 **Warning**: This is a custom operating system. Please backup important data before use.
+
+## 🌏 Korean Documentation
+
+Korean documentation is available separately. See [docs/README_KOREAN.md](docs/README_KOREAN.md) for the list of available Korean documents.
+
+**한국어 문서**: [docs/README_KOREAN.md](docs/README_KOREAN.md)에서 한국어 문서 목록을 확인하세요.

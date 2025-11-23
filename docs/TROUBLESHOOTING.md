@@ -1,182 +1,254 @@
-# 문제 해결 가이드
+# Troubleshooting Guide
 
-## 부팅 문제
+## Boot Issues
 
 ### "Failed to mount '' on real root"
 
-**원인**: ISO 레이블 불일치 또는 CD/DVD 장치 인식 실패
+**Cause**: ISO label mismatch or CD/DVD device detection failure
 
-**해결 방법**:
+**Solution**:
 
-#### VirtualBox에서:
-1. VM 설정 → Storage
-2. Controller: IDE가 아닌 **SATA Controller** 사용
-3. ISO를 SATA 포트에 연결
-4. "Type: DVD" 설정 확인
+#### In VirtualBox:
+1. VM Settings → Storage
+2. Use **SATA Controller** instead of IDE
+3. Attach ISO to SATA port
+4. Verify "Type: DVD" setting
 
-#### 부팅 옵션 수정:
-GRUB 메뉴에서 `e` 키를 눌러 부팅 옵션 편집:
+#### Modify boot options:
+Press `e` in GRUB menu to edit boot options:
 ```
 linux /%INSTALL_DIR%/boot/x86_64/vmlinuz-linux archisobasedir=arch archisolabel=NAS_OS_202511 copytoram
-initrd /%INSTALL_DIR%/boot/x86_64/initramfs-linux.img
 ```
 
-또는 디버깅을 위해:
+Then press `Ctrl+X` or `F10` to boot.
+
+### Black screen after boot
+
+**Possible causes**:
+1. Graphics driver issue
+2. Resolution incompatibility
+3. KMS (Kernel Mode Setting) problem
+
+**Solution**:
+
+Add to kernel parameters (press `e` in GRUB):
 ```
-linux /%INSTALL_DIR%/boot/x86_64/vmlinuz-linux archisobasedir=arch archisolabel=NAS_OS_202511 copytoram debug
-```
-
-### "Switch Root Failed"
-
-**원인**: initramfs에서 실제 root로 전환 실패
-
-**확인 사항**:
-1. `base` 패키지가 포함되어 있는지 확인
-2. `systemd` 패키지 포함 확인
-3. mkinitcpio hooks 설정 확인
-
-### VirtualBox 권장 설정
-
-```
-Type: Linux
-Version: Arch Linux (64-bit)
-RAM: 2048 MB (최소 512MB)
-Storage Controller: SATA (not IDE)
-Enable PAE/NX: Yes
-Processor: 2 CPUs
+nomodeset
 ```
 
-### QEMU 테스트
+Or for specific graphics:
+- NVIDIA: `nouveau.modeset=0`
+- AMD: `amdgpu.modeset=0`
 
-```bash
-qemu-system-x86_64 \
-  -boot d \
-  -cdrom output/nas-os-*.iso \
-  -m 2048 \
-  -enable-kvm
-```
+### Boot hangs at "Loading initial ramdisk"
 
-## 패키지 설치 문제
+**Cause**: Corrupted ISO or USB write error
 
-### "failed to retrieve some files"
-
-**원인**: 미러 서버 연결 실패
-
-**해결**:
-```bash
-# 미러 리스트 업데이트
-sudo reflector --country Korea,Japan --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-sudo pacman -Syy
-```
-
-### "community.db not found"
-
-**원인**: community 저장소가 2023년에 extra로 통합됨
-
-**해결**: pacman.conf에서 `[community]` 섹션 제거
-
-## 네트워크 문제
-
-### WiFi 작동 안 함
-
-**확인**:
-```bash
-# 펌웨어 확인
-dmesg | grep firmware
-
-# linux-firmware 설치 확인
-pacman -Q linux-firmware
-
-# WiFi 장치 확인
-ip link
-```
-
-### SSH 접속 안 됨
-
-**확인**:
-```bash
-# SSH 서비스 상태
-systemctl status sshd
-
-# 방화벽 확인
-sudo ufw status
-
-# SSH 포트 열기
-sudo ufw allow 22
-```
-
-## 빌드 문제
-
-### Docker 권한 에러
-
-```bash
-# 사용자를 docker 그룹에 추가
-sudo usermod -aG docker $USER
-
-# 로그아웃 후 다시 로그인
-```
-
-### "work directory permission denied"
-
-**원인**: 이전 빌드의 work 디렉토리가 root 소유
-
-**해결**:
-빌드 스크립트가 자동으로 정리하지만, 수동으로는:
-```bash
-# Docker 컨테이너로 삭제
-docker run --rm --privileged -v $(pwd):/build archlinux:latest rm -rf /build/output/work
-```
-
-## 성능 문제
-
-### 부팅이 느림
-
-1. `copytoram` 옵션 사용 (RAM에 전체 로드)
-2. SSD/NVMe 사용
-3. VM의 경우 호스트 CPU 기능 활성화
-
-### 메모리 부족
-
-**최소 요구사항**:
-- 기본 시스템: 512MB
-- Docker 사용: +1GB
-- 웹 UI: +512MB
-
-## 하드웨어 호환성
-
-### GPU 드라이버 누락
-
-```bash
-# Intel GPU
-sudo pacman -S mesa intel-media-driver
-
-# AMD GPU
-sudo pacman -S mesa xf86-video-amdgpu
-
-# NVIDIA
-sudo pacman -S nvidia nvidia-utils
-```
-
-### WiFi 펌웨어 누락 메시지
-
-```bash
-# 무시해도 됨 (대부분의 경우)
-# 특정 펌웨어만 필요하면:
-dmesg | grep firmware
-# 해당 펌웨어 패키지 설치
-```
-
-## 도움 받기
-
-1. **로그 수집**:
+**Solution**:
+1. Verify ISO checksum
+2. Rewrite USB with verified ISO:
    ```bash
-   journalctl -b > boot.log
-   dmesg > dmesg.log
+   sudo dd if=nas_os.iso of=/dev/sdX bs=4M status=progress oflag=sync
+   ```
+3. Try different USB port (USB 2.0 instead of 3.0)
+
+## Installation Issues
+
+### "Failed to install packages"
+
+**Cause**: Network issue or mirror unavailable
+
+**Solution**:
+1. Check network connection:
+   ```bash
+   ping archlinux.org
    ```
 
-2. **GitHub Issue 생성**: https://github.com/PrizmCaptCore/prizm_nas_os/issues
-   - 에러 메시지 전체
-   - 하드웨어 정보 (CPU, RAM, Storage)
-   - 부팅 로그
+2. Update mirror list manually:
+   ```bash
+   nano /etc/pacman.d/mirrorlist
+   ```
+   Uncomment closer mirrors
 
-3. **Arch Wiki**: https://wiki.archlinux.org/
+3. Refresh package database:
+   ```bash
+   pacman -Syy
+   ```
+
+### "Disk not found" during partitioning
+
+**Cause**: Disk not detected or wrong device name
+
+**Solution**:
+1. List all disks:
+   ```bash
+   lsblk
+   fdisk -l
+   ```
+
+2. For NVMe drives, use:
+   - `/dev/nvme0n1` instead of `/dev/sda`
+   - Partitions: `nvme0n1p1`, `nvme0n1p2`, etc.
+
+### GRUB installation fails
+
+**UEFI system**:
+```bash
+# Remount EFI partition
+mount /dev/sdX1 /boot
+
+# Reinstall GRUB
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --removable
+
+# Regenerate config
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+**BIOS system**:
+```bash
+grub-install --target=i386-pc /dev/sdX
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+## Network Issues
+
+### No network after boot
+
+**Check interface**:
+```bash
+ip link show
+```
+
+**Enable DHCP**:
+```bash
+systemctl start dhcpcd
+systemctl enable dhcpcd
+```
+
+**Manual IP configuration**:
+```bash
+ip addr add 192.168.1.100/24 dev eth0
+ip route add default via 192.168.1.1
+```
+
+### WiFi not working
+
+**Check wireless interface**:
+```bash
+ip link show
+iwctl device list
+```
+
+**Connect to WiFi**:
+```bash
+iwctl
+station wlan0 scan
+station wlan0 get-networks
+station wlan0 connect "NetworkName"
+```
+
+## Performance Issues
+
+### Slow boot time
+
+**Check boot time**:
+```bash
+systemd-analyze blame
+```
+
+**Disable unnecessary services**:
+```bash
+systemctl disable servicename
+```
+
+### High memory usage
+
+**Check memory usage**:
+```bash
+free -h
+htop
+```
+
+**Clear cache if needed**:
+```bash
+sync; echo 3 > /proc/sys/vm/drop_caches
+```
+
+## Package Manager Issues
+
+### "Database lock" error
+
+**Cause**: Another pacman process running or interrupted update
+
+**Solution**:
+```bash
+# Check for running pacman
+ps aux | grep pacman
+
+# Remove lock file (only if no pacman is running)
+sudo rm /var/lib/pacman/db.lck
+```
+
+### Key import failed
+
+**Update keyring**:
+```bash
+pacman-key --init
+pacman-key --populate archlinux
+pacman -Sy archlinux-keyring
+```
+
+## Disk & Storage Issues
+
+### RAID array won't assemble
+
+**Check RAID status**:
+```bash
+cat /proc/mdstat
+mdadm --detail /dev/mdX
+```
+
+**Force assemble**:
+```bash
+mdadm --assemble --force /dev/md0 /dev/sda1 /dev/sdb1
+```
+
+### Btrfs filesystem errors
+
+**Check filesystem**:
+```bash
+btrfs scrub start /mount/point
+btrfs scrub status /mount/point
+```
+
+**Repair (unmount first)**:
+```bash
+umount /mount/point
+btrfs check --repair /dev/sdX
+```
+
+## Getting Help
+
+If issues persist:
+
+1. **Check logs**:
+   ```bash
+   journalctl -xb
+   dmesg | tail -50
+   ```
+
+2. **Community support**:
+   - GitHub Issues: https://github.com/yourusername/nas_project/issues
+   - Arch Linux Forums: https://bbs.archlinux.org/
+   - Arch Linux Wiki: https://wiki.archlinux.org/
+
+3. **Include in bug reports**:
+   - Hardware specifications
+   - ISO version
+   - Full error messages
+   - Output of `journalctl -xb`
+   - Steps to reproduce
+
+---
+
+**Korean Guide Available**: See [TROUBLESHOOTING_ko.md](TROUBLESHOOTING_ko.md) for Korean version.
