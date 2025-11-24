@@ -12,15 +12,56 @@
             color: #e0e0e0;
             padding: 20px;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { 
-            font-size: 2em; 
-            margin-bottom: 10px;
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2em;
             font-weight: 600;
         }
         .subtitle {
             color: #888;
-            margin-bottom: 30px;
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .logout-btn:hover {
+            background: #3a3a3a;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 1em;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            color: #4ade80;
+            border-bottom-color: #4ade80;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         .grid {
             display: grid;
@@ -82,44 +123,167 @@
             padding: 40px;
             color: #666;
         }
+        .upload-area {
+            border: 2px dashed #3a3a3a;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #4ade80;
+            background: #1a1a1a;
+        }
+        .upload-area.dragover {
+            border-color: #4ade80;
+            background: #1a2a1a;
+        }
+        .file-input {
+            display: none;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #4ade80;
+            border: none;
+            border-radius: 6px;
+            color: #0f0f0f;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .btn:hover {
+            background: #3cc368;
+        }
+        .btn-danger {
+            background: #f87171;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #e65a5a;
+        }
+        .file-list {
+            list-style: none;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .file-meta {
+            font-size: 0.85em;
+            color: #888;
+        }
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>PRIZM NAS</h1>
-        <p class="subtitle">Network Attached Storage Management</p>
+        <div class="header">
+            <div>
+                <h1>PRIZM NAS</h1>
+                <p class="subtitle">Network Attached Storage Management</p>
+            </div>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
 
-        <div class="grid">
-            <!-- System Info -->
-            <div class="card">
-                <h2>System</h2>
-                <div id="system-info" class="loading">Loading...</div>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="switchTab('files')">Files</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <div class="grid">
+                <!-- System Info -->
+                <div class="card">
+                    <h2>System</h2>
+                    <div id="system-info" class="loading">Loading...</div>
+                </div>
+
+                <!-- Services -->
+                <div class="card">
+                    <h2>Services</h2>
+                    <div id="services" class="loading">Loading...</div>
+                </div>
+
+                <!-- Network -->
+                <div class="card">
+                    <h2>Network</h2>
+                    <div id="network" class="loading">Loading...</div>
+                </div>
             </div>
 
-            <!-- Services -->
+            <!-- Disks -->
             <div class="card">
-                <h2>Services</h2>
-                <div id="services" class="loading">Loading...</div>
-            </div>
-
-            <!-- Network -->
-            <div class="card">
-                <h2>Network</h2>
-                <div id="network" class="loading">Loading...</div>
+                <h2>Storage</h2>
+                <div id="disks" class="loading">Loading...</div>
             </div>
         </div>
 
-        <!-- Disks -->
-        <div class="card">
-            <h2>Storage</h2>
-            <div id="disks" class="loading">Loading...</div>
+        <!-- Files Tab -->
+        <div id="files-tab" class="tab-content">
+            <div class="card">
+                <h2>Upload Files</h2>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" class="file-input" multiple>
+                    <p style="color: #888; margin-bottom: 10px;">Drag and drop files here or click to browse</p>
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">Select Files</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Files</h2>
+                <div id="file-list" class="loading">Loading...</div>
+            </div>
         </div>
     </div>
 
     <script>
+        let currentTab = 'dashboard';
+
+        function switchTab(tab) {
+            currentTab = tab;
+
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+
+            if (tab === 'files') {
+                loadFiles();
+            }
+        }
+
         async function fetchData(endpoint) {
             try {
                 const response = await fetch(`/api/${endpoint}`);
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return null;
+                }
                 return await response.json();
             } catch (error) {
                 return { error: error.message };
@@ -128,6 +292,8 @@
 
         async function updateSystemInfo() {
             const data = await fetchData('system');
+            if (!data) return;
+
             const html = `
                 <div class="info-row">
                     <span class="label">Hostname</span>
@@ -147,6 +313,8 @@
 
         async function updateServices() {
             const data = await fetchData('services');
+            if (!data) return;
+
             let html = '';
             for (const [service, status] of Object.entries(data)) {
                 const statusClass = status === 'active' ? 'active' : 'inactive';
@@ -162,50 +330,159 @@
 
         async function updateNetwork() {
             const data = await fetchData('network');
+            if (!data) return;
+
             const interfaces = data.interfaces.filter(i => i.trim());
-            let html = '';
-            if (interfaces.length === 0) {
-                html = '<div class="info-row"><span class="label">No network interfaces</span></div>';
-            } else {
-                interfaces.forEach(iface => {
-                    html += `<div class="info-row"><code>${iface.trim()}</code></div>`;
-                });
-            }
+            const html = interfaces.length === 0
+                ? '<div class="info-row"><span class="label">No network interfaces</span></div>'
+                : interfaces.map(i => `<div class="info-row"><code>${i.trim()}</code></div>`).join('');
             document.getElementById('network').innerHTML = html;
         }
 
         async function updateDisks() {
             const data = await fetchData('disks');
-            if (data.error) {
-                document.getElementById('disks').innerHTML = `<div class="info-row"><span class="label">${data.error}</span></div>`;
+            if (!data || data.error) {
+                document.getElementById('disks').innerHTML = `<div class="info-row"><span class="label">${data?.error || 'Error loading disks'}</span></div>`;
                 return;
             }
-            
-            let html = '';
-            if (data.blockdevices) {
-                data.blockdevices.forEach(disk => {
-                    html += `
-                        <div class="disk-item">
-                            <div class="info-row">
-                                <span class="label">/dev/${disk.name}</span>
-                                <span class="value">${disk.size || 'N/A'}</span>
-                            </div>
-                            ${disk.mountpoint ? `<div style="margin-top:4px"><code>${disk.mountpoint}</code> ${disk.fstype || ''}</div>` : ''}
-                        </div>
-                    `;
-                });
-            }
-            document.getElementById('disks').innerHTML = html || '<div class="info-row"><span class="label">No disks found</span></div>';
+
+            const html = data.blockdevices?.map(disk => `
+                <div class="disk-item">
+                    <div class="info-row">
+                        <span class="label">/dev/${disk.name}</span>
+                        <span class="value">${disk.size || 'N/A'}</span>
+                    </div>
+                    ${disk.mountpoint ? `<div style="margin-top:4px"><code>${disk.mountpoint}</code> ${disk.fstype || ''}</div>` : ''}
+                </div>
+            `).join('') || '<div class="info-row"><span class="label">No disks found</span></div>';
+
+            document.getElementById('disks').innerHTML = html;
         }
 
-        // Update all data
+        async function loadFiles() {
+            const data = await fetchData('files/list');
+            if (!data || data.error || data.files.length === 0) {
+                document.getElementById('file-list').innerHTML = '<div class="info-row"><span class="label">No files uploaded yet</span></div>';
+                return;
+            }
+
+            const html = '<ul class="file-list">' + data.files.map(file => {
+                const size = formatBytes(file.size);
+                const date = new Date(file.modified * 1000).toLocaleString();
+                return `
+                    <li class="file-item">
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-meta">${size} • ${date}</div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn btn-sm" onclick="downloadFile('${file.name}')">Download</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteFile('${file.name}')">Delete</button>
+                        </div>
+                    </li>
+                `;
+            }).join('') + '</ul>';
+            document.getElementById('file-list').innerHTML = html;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        async function downloadFile(filename) {
+            window.location.href = `/api/files/download/${filename}`;
+        }
+
+        async function deleteFile(filename) {
+            if (!confirm(`Delete ${filename}?`)) return;
+
+            try {
+                const response = await fetch(`/api/files/delete/${filename}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadFiles();
+                } else {
+                    const data = await response.json();
+                    alert('Error: ' + (data.error || 'Delete failed'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', (e) => {
+            if (e.target !== uploadArea.querySelector('.btn')) {
+                fileInput.click();
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            uploadFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            uploadFiles(e.target.files);
+        });
+
+        async function uploadFiles(files) {
+            for (let file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch('/api/files/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        console.log('Uploaded:', data.filename);
+                    } else {
+                        alert(`Error uploading ${file.name}: ${data.error}`);
+                    }
+                } catch (error) {
+                    alert(`Error uploading ${file.name}: ${error.message}`);
+                }
+            }
+
+            loadFiles();
+            fileInput.value = '';
+        }
+
+        // Update dashboard data
         async function updateAll() {
-            await Promise.all([
-                updateSystemInfo(),
-                updateServices(),
-                updateNetwork(),
-                updateDisks()
-            ]);
+            if (currentTab === 'dashboard') {
+                await Promise.all([
+                    updateSystemInfo(),
+                    updateServices(),
+                    updateNetwork(),
+                    updateDisks()
+                ]);
+            }
         }
 
         // Initial load

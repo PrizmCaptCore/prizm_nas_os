@@ -96,6 +96,16 @@ success "✓ Partitions mounted"
 
 echo ""
 echo "[4/11] Installing base system (this may take a while)..."
+
+# Initialize pacman keyring before pacstrap
+echo "Initializing pacman keyring..."
+pacman-key --init
+pacman-key --populate archlinux
+
+# Create keyring directory with proper permissions
+mkdir -p /mnt/etc/pacman.d/gnupg
+chmod 755 /mnt/etc/pacman.d/gnupg
+
 pacstrap /mnt base linux linux-firmware
 success "✓ Base system installed"
 
@@ -103,12 +113,6 @@ echo ""
 echo "[5/11] Generating fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
 success "✓ fstab generated"
-
-echo ""
-echo "Initializing pacman keyring..."
-arch-chroot /mnt pacman-key --init
-arch-chroot /mnt pacman-key --populate archlinux
-success "✓ Keyring initialized"
 
 echo ""
 echo "[6/11] Configuring system..."
@@ -134,6 +138,11 @@ success "✓ System configured"
 
 echo ""
 echo "[7/11] Installing bootloader..."
+
+# Initialize keyring in chroot environment
+echo "Initializing keyring in target system..."
+arch-chroot /mnt pacman-key --init
+arch-chroot /mnt pacman-key --populate archlinux
 
 if [ -d /sys/firmware/efi/efivars ]; then
     echo "Installing GRUB for UEFI..."
@@ -177,18 +186,13 @@ success "✓ NAS packages installed"
 
 echo ""
 echo "[9/11] Installing Web UI..."
-mkdir -p /mnt/opt/nas-webui/templates
-
-# Copy web UI files
 if [ -d /opt/nas-webui ]; then
+    mkdir -p /mnt/opt/nas-webui/templates /mnt/etc/systemd/system
     cp -r /opt/nas-webui/* /mnt/opt/nas-webui/
-    
-    # Copy systemd service
+
     if [ -f /etc/systemd/system/nas-webui.service ]; then
-        mkdir -p /mnt/etc/systemd/system
         cp /etc/systemd/system/nas-webui.service /mnt/etc/systemd/system/
     fi
-    
     success "✓ Web UI installed"
 else
     warning "Web UI files not found, skipping"
@@ -196,14 +200,11 @@ fi
 
 echo ""
 echo "[10/11] Enabling services..."
-arch-chroot /mnt systemctl enable sshd
-arch-chroot /mnt systemctl enable dhcpcd
+arch-chroot /mnt systemctl enable sshd dhcpcd
 
-# Enable web UI if service file exists
 if [ -f /mnt/etc/systemd/system/nas-webui.service ]; then
     arch-chroot /mnt systemctl enable nas-webui
 fi
-
 success "✓ Services enabled"
 
 echo ""
@@ -238,9 +239,6 @@ success "  Installation Complete!"
 success "================================"
 echo ""
 echo "Your NAS is ready!"
-echo ""
-echo "After reboot, access the Web UI at:"
-echo "  http://<your-nas-ip>"
-echo ""
-echo "To reboot, run: reboot"
+echo "After reboot, access Web UI at: http://<your-nas-ip>"
+echo "To reboot now, run: reboot"
 echo ""
