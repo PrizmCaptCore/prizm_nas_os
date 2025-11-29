@@ -11,7 +11,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-REPO_URL="https://github.com/haje-hwang/nas_project.git"
+REPO_URL="https://github.com/PrizmCaptCore/prizm_nas_os.git"
 INSTALL_DIR="/tmp/nas_project"
 
 echo -e "${GREEN}================================${NC}"
