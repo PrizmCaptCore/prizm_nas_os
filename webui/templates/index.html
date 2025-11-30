@@ -194,6 +194,55 @@
             padding: 6px 12px;
             font-size: 0.85em;
         }
+        .browser-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .browser-item:hover {
+            background: #2a2a2a;
+        }
+        .browser-item.folder {
+            font-weight: 500;
+        }
+        .browser-icon {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+        .browser-item-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .browser-item-name {
+            flex: 1;
+        }
+        .browser-item-size {
+            color: #888;
+            font-size: 0.9em;
+            min-width: 80px;
+        }
+        .browser-item-date {
+            color: #888;
+            font-size: 0.85em;
+            min-width: 150px;
+        }
+        .browser-actions {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .browser-item:hover .browser-actions {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -208,6 +257,7 @@
 
         <div class="tabs">
             <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="switchTab('browser')">File Browser</button>
             <button class="tab" onclick="switchTab('files')">Files</button>
         </div>
 
@@ -240,6 +290,30 @@
             </div>
         </div>
 
+        <!-- File Browser Tab -->
+        <div id="browser-tab" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="btn btn-sm" onclick="navigateUp()" id="upBtn">↑ Up</button>
+                        <button class="btn btn-sm" onclick="refreshBrowser()">↻ Refresh</button>
+                        <button class="btn btn-sm" onclick="showCreateFolder()">+ New Folder</button>
+                    </div>
+                </div>
+
+                <div style="background: #0f0f0f; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-family: monospace; color: #4ade80;">
+                    /srv/nas/<span id="currentPath"></span>
+                </div>
+
+                <div class="upload-area" id="browserUploadArea" style="margin-bottom: 20px; padding: 20px;">
+                    <input type="file" id="browserFileInput" class="file-input" multiple>
+                    <p style="color: #888; margin-bottom: 8px; font-size: 0.9em;">Drop files here to upload</p>
+                </div>
+
+                <div id="browser-content" class="loading">Loading...</div>
+            </div>
+        </div>
+
         <!-- Files Tab -->
         <div id="files-tab" class="tab-content">
             <div class="card">
@@ -260,6 +334,7 @@
 
     <script>
         let currentTab = 'dashboard';
+        let currentBrowserPath = '';
 
         function switchTab(tab) {
             currentTab = tab;
@@ -274,6 +349,8 @@
 
             if (tab === 'files') {
                 loadFiles();
+            } else if (tab === 'browser') {
+                loadBrowser(currentBrowserPath);
             }
         }
 
@@ -483,6 +560,173 @@
                     updateDisks()
                 ]);
             }
+        }
+
+        // File Browser Functions
+        async function loadBrowser(path = '') {
+            currentBrowserPath = path;
+            document.getElementById('currentPath').textContent = path || '(root)';
+            document.getElementById('upBtn').disabled = !path;
+
+            const data = await fetchData(`browse?path=${encodeURIComponent(path)}`);
+            if (!data || data.error) {
+                document.getElementById('browser-content').innerHTML =
+                    `<div class="info-row"><span class="label">${data?.error || 'Error loading directory'}</span></div>`;
+                return;
+            }
+
+            if (data.items.length === 0) {
+                document.getElementById('browser-content').innerHTML =
+                    '<div class="info-row"><span class="label">Empty directory</span></div>';
+                return;
+            }
+
+            // Sort: directories first, then files
+            data.items.sort((a, b) => {
+                if (a.type !== b.type) return a.type === 'directory' ? -1 : 1;
+                return a.name.localeCompare(b.name);
+            });
+
+            const html = data.items.map(item => {
+                const icon = item.type === 'directory' ? '📁' : '📄';
+                const size = item.type === 'directory' ? '' : formatBytes(item.size);
+                const date = new Date(item.modified * 1000).toLocaleString();
+                const itemClass = item.type === 'directory' ? 'browser-item folder' : 'browser-item';
+
+                return `
+                    <div class="${itemClass}" onclick="${item.type === 'directory' ? `loadBrowser('${item.path}')` : ''}">
+                        <span class="browser-icon">${icon}</span>
+                        <div class="browser-item-info">
+                            <span class="browser-item-name">${item.name}</span>
+                            <span class="browser-item-size">${size}</span>
+                            <span class="browser-item-date">${date}</span>
+                        </div>
+                        <div class="browser-actions" onclick="event.stopPropagation()">
+                            ${item.type === 'file' ? `<button class="btn btn-sm" onclick="downloadFromBrowser('${item.path}')">Download</button>` : ''}
+                            <button class="btn btn-sm btn-danger" onclick="deleteFromBrowser('${item.path}', '${item.type}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('browser-content').innerHTML = html;
+        }
+
+        function navigateUp() {
+            if (!currentBrowserPath) return;
+            const parts = currentBrowserPath.split('/').filter(p => p);
+            parts.pop();
+            loadBrowser(parts.join('/'));
+        }
+
+        function refreshBrowser() {
+            loadBrowser(currentBrowserPath);
+        }
+
+        function showCreateFolder() {
+            const name = prompt('Enter folder name:');
+            if (!name) return;
+
+            createFolder(currentBrowserPath, name);
+        }
+
+        async function createFolder(path, name) {
+            try {
+                const response = await fetch('/api/browse/mkdir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path, name })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    refreshBrowser();
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to create folder'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function downloadFromBrowser(path) {
+            window.location.href = `/api/browse/download?path=${encodeURIComponent(path)}`;
+        }
+
+        async function deleteFromBrowser(path, type) {
+            const itemType = type === 'directory' ? 'folder' : 'file';
+            if (!confirm(`Delete this ${itemType}?`)) return;
+
+            try {
+                const response = await fetch(`/api/browse/delete?path=${encodeURIComponent(path)}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    refreshBrowser();
+                } else {
+                    const data = await response.json();
+                    alert('Error: ' + (data.error || 'Delete failed'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Browser upload handling
+        const browserUploadArea = document.getElementById('browserUploadArea');
+        const browserFileInput = document.getElementById('browserFileInput');
+
+        browserUploadArea.addEventListener('click', (e) => {
+            if (e.target === browserUploadArea || e.target.tagName === 'P') {
+                browserFileInput.click();
+            }
+        });
+
+        browserUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            browserUploadArea.classList.add('dragover');
+        });
+
+        browserUploadArea.addEventListener('dragleave', () => {
+            browserUploadArea.classList.remove('dragover');
+        });
+
+        browserUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            browserUploadArea.classList.remove('dragover');
+            uploadToBrowser(e.dataTransfer.files);
+        });
+
+        browserFileInput.addEventListener('change', (e) => {
+            uploadToBrowser(e.target.files);
+        });
+
+        async function uploadToBrowser(files) {
+            for (let file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('path', currentBrowserPath);
+
+                try {
+                    const response = await fetch('/api/browse/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        alert(`Error uploading ${file.name}: ${data.error}`);
+                    }
+                } catch (error) {
+                    alert(`Error uploading ${file.name}: ${error.message}`);
+                }
+            }
+
+            refreshBrowser();
+            browserFileInput.value = '';
         }
 
         // Initial load

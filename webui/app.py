@@ -17,10 +17,12 @@ app.secret_key = os.urandom(24)  # Random secret key for sessions
 
 # Configuration
 app.config['UPLOAD_FOLDER'] = '/srv/nas/uploads'
+app.config['BASE_FOLDER'] = '/srv/nas'  # Base folder for file browser
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 * 1024  # 16GB max file size
 
 # Create upload directory if it doesn't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(app.config['BASE_FOLDER'], exist_ok=True)
 
 # Default credentials (admin/admin) - should be changed on first login
 # Password is hashed using werkzeug's generate_password_hash
@@ -33,6 +35,12 @@ def run_command(cmd):
         return result.stdout.strip()
     except Exception as e:
         return f"Error: {str(e)}"
+
+def is_safe_path(base_path, path):
+    """Check if path is within base_path (prevent directory traversal)"""
+    base_path = os.path.abspath(base_path)
+    requested_path = os.path.abspath(os.path.join(base_path, path))
+    return requested_path.startswith(base_path)
 
 def login_required(f):
     """Decorator to require login for routes"""
@@ -140,6 +148,49 @@ def get_services():
 # File Management APIs
 # ============================================
 
+@app.route('/api/browse')
+@login_required
+def browse_directory():
+    """Browse directory contents"""
+    path = request.args.get('path', '')
+
+    # Security check
+    if not is_safe_path(app.config['BASE_FOLDER'], path):
+        return jsonify({'error': 'Invalid path'}), 403
+
+    full_path = os.path.join(app.config['BASE_FOLDER'], path)
+
+    if not os.path.exists(full_path):
+        return jsonify({'error': 'Path does not exist'}), 404
+
+    if not os.path.isdir(full_path):
+        return jsonify({'error': 'Not a directory'}), 400
+
+    try:
+        items = []
+        for item_name in sorted(os.listdir(full_path)):
+            item_path = os.path.join(full_path, item_name)
+            try:
+                stat = os.stat(item_path)
+                is_dir = os.path.isdir(item_path)
+
+                items.append({
+                    'name': item_name,
+                    'type': 'directory' if is_dir else 'file',
+                    'size': 0 if is_dir else stat.st_size,
+                    'modified': stat.st_mtime,
+                    'path': os.path.join(path, item_name)
+                })
+            except (PermissionError, OSError):
+                continue
+
+        return jsonify({
+            'current_path': path,
+            'items': items
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/files/list')
 @login_required
 def list_files():
@@ -211,6 +262,124 @@ def delete_file(filename):
 
         os.remove(filepath)
         return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/browse/download', methods=['GET'])
+@login_required
+def download_from_browser():
+    """Download a file from file browser"""
+    path = request.args.get('path', '')
+
+    if not is_safe_path(app.config['BASE_FOLDER'], path):
+        return jsonify({'error': 'Invalid path'}), 403
+
+    full_path = os.path.join(app.config['BASE_FOLDER'], path)
+
+    if not os.path.exists(full_path):
+        return jsonify({'error': 'File not found'}), 404
+
+    if os.path.isdir(full_path):
+        return jsonify({'error': 'Cannot download directory'}), 400
+
+    try:
+        return send_file(full_path, as_attachment=True)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/browse/delete', methods=['DELETE'])
+@login_required
+def delete_from_browser():
+    """Delete a file or directory from file browser"""
+    path = request.args.get('path', '')
+
+    if not path:
+        return jsonify({'error': 'Path required'}), 400
+
+    if not is_safe_path(app.config['BASE_FOLDER'], path):
+        return jsonify({'error': 'Invalid path'}), 403
+
+    full_path = os.path.join(app.config['BASE_FOLDER'], path)
+
+    if not os.path.exists(full_path):
+        return jsonify({'error': 'Path not found'}), 404
+
+    try:
+        import shutil
+        if os.path.isdir(full_path):
+            shutil.rmtree(full_path)
+        else:
+            os.remove(full_path)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/browse/mkdir', methods=['POST'])
+@login_required
+def create_directory():
+    """Create a new directory"""
+    data = request.get_json()
+    path = data.get('path', '')
+    name = data.get('name', '')
+
+    if not name:
+        return jsonify({'error': 'Directory name required'}), 400
+
+    # Sanitize directory name
+    name = secure_filename(name)
+
+    if not is_safe_path(app.config['BASE_FOLDER'], path):
+        return jsonify({'error': 'Invalid path'}), 403
+
+    parent_path = os.path.join(app.config['BASE_FOLDER'], path)
+    new_dir = os.path.join(parent_path, name)
+
+    if os.path.exists(new_dir):
+        return jsonify({'error': 'Directory already exists'}), 409
+
+    try:
+        os.makedirs(new_dir)
+        return jsonify({'success': True, 'path': os.path.join(path, name)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/browse/upload', methods=['POST'])
+@login_required
+def upload_to_browser():
+    """Upload a file to specific directory in file browser"""
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    path = request.form.get('path', '')
+
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if not is_safe_path(app.config['BASE_FOLDER'], path):
+        return jsonify({'error': 'Invalid path'}), 403
+
+    target_dir = os.path.join(app.config['BASE_FOLDER'], path)
+
+    if not os.path.exists(target_dir):
+        return jsonify({'error': 'Directory does not exist'}), 404
+
+    if not os.path.isdir(target_dir):
+        return jsonify({'error': 'Not a directory'}), 400
+
+    try:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(target_dir, filename)
+
+        if os.path.exists(filepath):
+            return jsonify({'error': 'File already exists'}), 409
+
+        file.save(filepath)
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'size': os.path.getsize(filepath)
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
