@@ -143,6 +143,76 @@ def get_services():
 
     return jsonify(status)
 
+@app.route('/api/version')
+@login_required
+def get_version():
+    """Get current system version"""
+    try:
+        version_file = os.path.join(os.path.dirname(__file__), 'VERSION')
+        if os.path.exists(version_file):
+            with open(version_file, 'r') as f:
+                version = f.read().strip()
+        else:
+            version = 'unknown'
+        return jsonify({'version': version})
+    except Exception as e:
+        return jsonify({'version': 'unknown', 'error': str(e)})
+
+@app.route('/api/update/check')
+@login_required
+def check_update():
+    """Check for available updates"""
+    try:
+        # Get current version
+        version_file = os.path.join(os.path.dirname(__file__), 'VERSION')
+        current_version = 'unknown'
+        if os.path.exists(version_file):
+            with open(version_file, 'r') as f:
+                current_version = f.read().strip()
+
+        # Check latest version from GitHub
+        import urllib.request
+        url = 'https://raw.githubusercontent.com/PrizmCaptCore/prizm_nas_os/main/webui/VERSION'
+        try:
+            with urllib.request.urlopen(url, timeout=10) as response:
+                latest_version = response.read().decode('utf-8').strip()
+        except:
+            latest_version = current_version
+
+        update_available = current_version != latest_version and latest_version != 'unknown'
+
+        return jsonify({
+            'current_version': current_version,
+            'latest_version': latest_version,
+            'update_available': update_available
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/update/start', methods=['POST'])
+@login_required
+def start_update():
+    """Start system update"""
+    try:
+        update_script = '/usr/local/bin/nas-update.sh'
+
+        if not os.path.exists(update_script):
+            return jsonify({'error': 'Update script not found'}), 404
+
+        # Run update script in background with sudo
+        # Note: The web UI service should be configured to run this script with proper permissions
+        subprocess.Popen(['/usr/bin/sudo', update_script],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        start_new_session=True)
+
+        return jsonify({
+            'success': True,
+            'message': 'Update started. The system will restart when complete.'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 # ============================================
 # File Management APIs

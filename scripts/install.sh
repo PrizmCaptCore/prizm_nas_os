@@ -186,7 +186,7 @@ success "✓ NAS packages installed"
 
 echo ""
 echo "[9/11] Installing Web UI..."
-mkdir -p /mnt/opt/nas-webui/templates /mnt/etc/systemd/system /mnt/srv/nas/uploads
+mkdir -p /mnt/opt/nas-webui/templates /mnt/etc/systemd/system /mnt/srv/nas/uploads /mnt/usr/local/bin
 
 # Copy webui files from repository
 if [ -d "${REPO_DIR}/webui" ]; then
@@ -202,6 +202,20 @@ if [ -f "${REPO_DIR}/systemd/nas-webui.service" ]; then
     success "✓ Systemd service installed"
 else
     error_exit "Systemd service file not found"
+fi
+
+# Copy update script
+if [ -f "${REPO_DIR}/scripts/update.sh" ]; then
+    cp "${REPO_DIR}/scripts/update.sh" /mnt/usr/local/bin/nas-update.sh
+    chmod +x /mnt/usr/local/bin/nas-update.sh
+    success "✓ Update script installed"
+fi
+
+# Configure sudo permissions for update script
+if [ -f "${REPO_DIR}/systemd/nas-webui-sudoers" ]; then
+    cp "${REPO_DIR}/systemd/nas-webui-sudoers" /mnt/etc/sudoers.d/nas-webui
+    chmod 440 /mnt/etc/sudoers.d/nas-webui
+    success "✓ Sudo permissions configured"
 fi
 
 success "✓ Web UI installed"

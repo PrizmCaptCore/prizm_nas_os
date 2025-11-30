@@ -1,0 +1,6 @@
+# Allow nas-webui service to run update script without password
+# This file should be placed in /etc/sudoers.d/nas-webui
+
+# Assuming the web UI runs as root (port 80)
+# If running as a specific user, replace 'root' with that username
+root ALL=(ALL) NOPASSWD: /usr/local/bin/nas-update.sh

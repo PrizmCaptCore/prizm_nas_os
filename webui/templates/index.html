@@ -259,6 +259,7 @@
             <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
             <button class="tab" onclick="switchTab('browser')">File Browser</button>
             <button class="tab" onclick="switchTab('files')">Files</button>
+            <button class="tab" onclick="switchTab('settings')">Settings</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -330,6 +331,53 @@
                 <div id="file-list" class="loading">Loading...</div>
             </div>
         </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content">
+            <div class="card">
+                <h2>System Update (OTA)</h2>
+                <div id="update-info" class="loading">Checking for updates...</div>
+
+                <div id="update-section" style="margin-top: 20px; display: none;">
+                    <div class="info-row">
+                        <span class="label">Current Version</span>
+                        <span class="value" id="currentVersion">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Latest Version</span>
+                        <span class="value" id="latestVersion">-</span>
+                    </div>
+                    <div class="info-row" id="updateStatus">
+                        <span class="label">Status</span>
+                        <span class="status active" id="updateStatusText">Up to date</span>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button class="btn" onclick="checkForUpdates()" id="checkUpdateBtn">Check for Updates</button>
+                        <button class="btn" onclick="startUpdate()" id="updateBtn" style="display: none; background: #f59e0b;">Update Now</button>
+                    </div>
+
+                    <div id="updateWarning" style="margin-top: 20px; padding: 15px; background: #3d1a1a; border-radius: 6px; display: none;">
+                        <p style="color: #f87171; margin-bottom: 8px; font-weight: 600;">⚠️ Warning</p>
+                        <p style="color: #e0e0e0; font-size: 0.9em;">
+                            The update will restart the Web UI service. You may lose connection briefly during the update.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>About</h2>
+                <div class="info-row">
+                    <span class="label">System</span>
+                    <span class="value">PRIZM NAS OS</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Repository</span>
+                    <span class="value"><a href="https://github.com/PrizmCaptCore/prizm_nas_os" target="_blank" style="color: #4ade80;">GitHub</a></span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -351,6 +399,8 @@
                 loadFiles();
             } else if (tab === 'browser') {
                 loadBrowser(currentBrowserPath);
+            } else if (tab === 'settings') {
+                checkForUpdates();
             }
         }
 
@@ -727,6 +777,77 @@
 
             refreshBrowser();
             browserFileInput.value = '';
+        }
+
+        // Settings / OTA Update Functions
+        async function checkForUpdates() {
+            document.getElementById('update-info').style.display = 'block';
+            document.getElementById('update-info').innerHTML = 'Checking for updates...';
+            document.getElementById('update-section').style.display = 'none';
+
+            const data = await fetchData('update/check');
+
+            document.getElementById('update-info').style.display = 'none';
+            document.getElementById('update-section').style.display = 'block';
+
+            if (data && !data.error) {
+                document.getElementById('currentVersion').textContent = data.current_version;
+                document.getElementById('latestVersion').textContent = data.latest_version;
+
+                if (data.update_available) {
+                    document.getElementById('updateStatusText').textContent = 'Update available';
+                    document.getElementById('updateStatusText').className = 'status inactive';
+                    document.getElementById('updateBtn').style.display = 'inline-block';
+                    document.getElementById('updateWarning').style.display = 'block';
+                } else {
+                    document.getElementById('updateStatusText').textContent = 'Up to date';
+                    document.getElementById('updateStatusText').className = 'status active';
+                    document.getElementById('updateBtn').style.display = 'none';
+                    document.getElementById('updateWarning').style.display = 'none';
+                }
+            } else {
+                document.getElementById('update-info').style.display = 'block';
+                document.getElementById('update-info').innerHTML =
+                    `<div class="info-row"><span class="label">${data?.error || 'Failed to check for updates'}</span></div>`;
+            }
+        }
+
+        async function startUpdate() {
+            if (!confirm('Are you sure you want to update the system? The Web UI will restart during the update.')) {
+                return;
+            }
+
+            document.getElementById('checkUpdateBtn').disabled = true;
+            document.getElementById('updateBtn').disabled = true;
+            document.getElementById('updateBtn').textContent = 'Updating...';
+
+            try {
+                const response = await fetch('/api/update/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Update started! The page will reload in 30 seconds.');
+
+                    // Wait for service to restart
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 30000);
+                } else {
+                    alert('Error: ' + (data.error || 'Update failed'));
+                    document.getElementById('checkUpdateBtn').disabled = false;
+                    document.getElementById('updateBtn').disabled = false;
+                    document.getElementById('updateBtn').textContent = 'Update Now';
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+                document.getElementById('checkUpdateBtn').disabled = false;
+                document.getElementById('updateBtn').disabled = false;
+                document.getElementById('updateBtn').textContent = 'Update Now';
+            }
         }
 
         // Initial load
